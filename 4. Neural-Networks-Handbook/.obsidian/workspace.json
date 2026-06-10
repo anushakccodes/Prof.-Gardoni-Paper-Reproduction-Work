@@ -1,0 +1,222 @@
+{
+  "main": {
+    "id": "7467e2e5016ec5e7",
+    "type": "split",
+    "children": [
+      {
+        "id": "4973cf7a835f7dd0",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "dd935c58dd960455",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "00_Start_Here/01_Minimum_PyTorch_Setup.md",
+                "mode": "preview",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "01_Minimum_PyTorch_Setup"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "f5b89cd2358c8aa4",
+    "type": "split",
+    "children": [
+      {
+        "id": "d2712fc376befb37",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7b7a8925cf7335f5",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "27559707698afb04",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "6a57a23e58ff8450",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 200,
+    "collapsed": true
+  },
+  "right": {
+    "id": "8f7b5c765588a3eb",
+    "type": "split",
+    "children": [
+      {
+        "id": "0aea4bfff5ac2537",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4576803c659425b4",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "01_Core_Implementation_Concepts/01_The_Neural_Network_Loop.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for 01_The_Neural_Network_Loop"
+            }
+          },
+          {
+            "id": "9d59b574f97704d2",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "01_Core_Implementation_Concepts/01_The_Neural_Network_Loop.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from 01_The_Neural_Network_Loop"
+            }
+          },
+          {
+            "id": "a523eb1299b96169",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "dd44587eda070d73",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "c1cfca3b607d1cbc",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "01_Core_Implementation_Concepts/01_The_Neural_Network_Loop.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of 01_The_Neural_Network_Loop"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "dd935c58dd960455",
+  "lastOpenFiles": [
+    "00_Start_Here/00_Neural_Networks_Handbook.md",
+    "00_Start_Here/01_Minimum_PyTorch_Setup.md",
+    "01_Core_Implementation_Concepts/05_Forward_Pass.md",
+    "01_Core_Implementation_Concepts/02_Tensors_Data_And_Shapes.md",
+    "04_Research_Workflow/01_From_Problem_To_Dataset.md",
+    "05_Templates/Classification_Project_Template.md",
+    "02_Model_Building/01_Activation_Functions.md",
+    "03_Improving_Training/01_Learning_Rate_And_Schedulers.md",
+    "01_Core_Implementation_Concepts/03_Dataset_Dataloader_Batch_Epoch.md",
+    "01_Core_Implementation_Concepts/01_The_Neural_Network_Loop.md",
+    "06_Visuals/Image_Attribution_Log.md",
+    "06_Visuals/Local_Images/activation_functions.png",
+    "06_Visuals/Local_Images/confusion_matrix.png",
+    "05_Templates/Training_Loop_Template.md",
+    "05_Templates/Regression_Project_Template.md",
+    "06_Visuals/Local_Images/train_val_loss.png",
+    "06_Visuals/Local_Images/prediction_vs_target.png",
+    "06_Visuals/Local_Images/overfit_underfit.png",
+    "06_Visuals/Local_Images/learning_rate_schedule.png",
+    "05_Templates/Experiment_Checklist.md",
+    "05_Templates/Evaluation_Template.md",
+    "03_Improving_Training/07_Debugging_Training.md",
+    "03_Improving_Training/06_Skip_Connections.md",
+    "03_Improving_Training/04_Dropout.md",
+    "03_Improving_Training/02_Overfitting_Underfitting.md",
+    "99_Glossary/Common_Symbols.md",
+    "99_Glossary/PyTorch_Glossary.md",
+    "99_Glossary/Deep_Learning_Glossary.md",
+    "06_Visuals/Visual_Index.md",
+    "02_Model_Building/06_Saving_Loading_Checkpoints.md",
+    "02_Model_Building/04_Multiclass_Classification_Architectures.md",
+    "02_Model_Building/03_Binary_Classification_Architectures.md"
+  ]
+}
