@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "00_Start_Here/01_Minimum_PyTorch_Setup.md",
+                "file": "01_Core_Implementation_Concepts/01_The_Neural_Network_Loop.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "01_Minimum_PyTorch_Setup"
+              "title": "01_The_Neural_Network_Loop"
             }
           }
         ]
@@ -78,8 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 346.5
   },
   "right": {
     "id": "8f7b5c765588a3eb",
@@ -186,8 +185,8 @@
   },
   "active": "dd935c58dd960455",
   "lastOpenFiles": [
-    "00_Start_Here/00_Neural_Networks_Handbook.md",
     "00_Start_Here/01_Minimum_PyTorch_Setup.md",
+    "00_Start_Here/00_Neural_Networks_Handbook.md",
     "01_Core_Implementation_Concepts/05_Forward_Pass.md",
     "01_Core_Implementation_Concepts/02_Tensors_Data_And_Shapes.md",
     "04_Research_Workflow/01_From_Problem_To_Dataset.md",
