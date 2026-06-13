@@ -9,6 +9,10 @@ from sklearn.metrics import r2_score
 from modules.model import build_model
 from modules.preprocessing import make_loaders, INPUT_COLS
 
+# Fixed seed for reproducible weight initialisation and DataLoader shuffling.
+# The paper does not state a seed; this value gives consistent run-to-run results.
+GLOBAL_SEED = 42
+
 
 def _fmt_time(seconds):
     seconds = int(seconds)
@@ -50,6 +54,9 @@ def train_one_model(output_name, X_tr, Y_tr, X_te, Y_te,
     pred_tr, pred_te         : prediction 1-D numpy arrays
     epoch_times              : per-epoch wall-clock times (seconds)
     """
+    torch.manual_seed(GLOBAL_SEED)
+    np.random.seed(GLOBAL_SEED)
+
     cfg          = outs_cfg[output_name]
     batch_size   = cfg['batch_size']
     weight_decay = cfg['weight_decay']

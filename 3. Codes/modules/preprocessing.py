@@ -58,18 +58,19 @@ def load_config(yaml_path):
 # ---------------------------------------------------------------------------
 
 def load_and_split(data_path, input_cols, output_names, train_split):
-    """Load CSV, split into train/test, fit StandardScaler on train set.
+    """Load CSV and split using the pre-assigned 'split' column.
 
-    Uses the 'split' column if present in the CSV (values: 'train'/'test'),
-    otherwise performs a random 80/20 split with random_state=42.
+    The cleaned dataset (DNN_dataset_cleaned.csv, 110,649 rows) is the
+    dataset used to produce the paper's results. The 'split' column
+    pre-assigns each row to 'train' or 'test'.
 
     Returns
     -------
-    X_train_all : np.ndarray of shape (n_train, n_features), float32, scaled
-    X_test      : np.ndarray of shape (n_test,  n_features), float32, scaled
-    Y_train_all : np.ndarray of shape (n_train, n_outputs),  float32, unscaled
-    Y_test      : np.ndarray of shape (n_test,  n_outputs),  float32, unscaled
-    scaler      : fitted StandardScaler instance
+    X_train_all : np.ndarray (n_train, n_features) float32, scaled
+    X_test      : np.ndarray (n_test,  n_features) float32, scaled
+    Y_train_all : np.ndarray (n_train, n_outputs)  float32, unscaled
+    Y_test      : np.ndarray (n_test,  n_outputs)  float32, unscaled
+    scaler      : fitted StandardScaler
     """
     df = pd.read_csv(data_path)
     print(f'Loaded {len(df):,} rows x {len(df.columns)} columns')
@@ -80,7 +81,7 @@ def load_and_split(data_path, input_cols, output_names, train_split):
         print(f'Using split column  --  train: {len(train_df):,}  |  test: {len(test_df):,}')
     else:
         train_df, test_df = train_test_split(
-            df, test_size=1 - train_split, random_state=42
+            df, test_size=1.0 - train_split, random_state=42
         )
         train_df = train_df.reset_index(drop=True)
         test_df  = test_df.reset_index(drop=True)

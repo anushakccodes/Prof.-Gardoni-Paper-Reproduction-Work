@@ -6,7 +6,7 @@ dataset:
   total_size: 110649           # actual usable rows in DNN_dataset_cleaned.csv (author sent 160k raw; ~49k removed after cleaning)
   initial_size: 2000           # samples per iteration batch (Latin hypercube sampling)
   increment_per_iter: 2000
-  max_iterations: 50           # 50 iterations (paper states 40)
+  max_iterations: 40           # paper explicitly states 40 iterations → 40 × 2,000 = 80,000 samples
   train_split: 0.80
   test_split: 0.20
   r2_threshold: 0.90           # stop adding data once R² exceeds this
@@ -36,7 +36,7 @@ dnn_outputs:
   Du:  { neurons_per_layer: [256, 128, 64, 64, 64, 64], batch_size: 128, weight_decay: 2.0,  dropout_rate: 0.30 }
   Vu:  { neurons_per_layer: [128, 128, 64, 64, 64, 64], batch_size: 256, weight_decay: 0.4,  dropout_rate: 0.15 }
   IDu: { neurons_per_layer: [256, 128, 64, 64, 64, 64], batch_size: 128, weight_decay: 1.5,  dropout_rate: 0.25 }
-  IVu: { neurons_per_layer: [256, 128, 128, 64, 64, 64], batch_size: 128, weight_decay: 0.4, dropout_rate: 0.20 }
+  IVu: { neurons_per_layer: [256, 128, 128, 128, 128, 128], batch_size: 128, weight_decay: 0.4, dropout_rate: 0.20 }
 
 # Log-transformed DNN (Table 4) 
 # Applied to Du and IDu only (strong nonlinearity targets)
