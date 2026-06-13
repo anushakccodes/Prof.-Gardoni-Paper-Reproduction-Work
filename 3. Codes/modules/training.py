@@ -31,7 +31,7 @@ def train_one_model(output_name, X_tr, Y_tr, X_te, Y_te,
     Returns
     -------
     model                    : best-checkpoint DNNModel
-    train_losses, val_losses : per-epoch MSE lists
+    train_losses, test_losses : per-epoch MSE lists
     train_r2, test_r2        : final R^2 scores
     y_tr_true, y_te_true     : ground-truth 1-D numpy arrays
     pred_tr, pred_te         : prediction 1-D numpy arrays
@@ -56,9 +56,9 @@ def train_one_model(output_name, X_tr, Y_tr, X_te, Y_te,
     criterion = nn.MSELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
 
-    train_losses, val_losses = [], []
+    train_losses, test_losses = [], []
     epoch_times = []
-    best_val   = float('inf')
+    best_test  = float('inf')
     no_improve = 0
     best_state = None
 
@@ -78,34 +78,35 @@ def train_one_model(output_name, X_tr, Y_tr, X_te, Y_te,
             running += loss.item() * len(xb)
         train_losses.append(running / len(train_loader.dataset))
 
-        # --- val pass ---
+        # --- test pass (used for early stopping) ---
         model.eval()
-        val_running = 0.0
+        test_running = 0.0
         with torch.no_grad():
             for xb, yb in test_loader:
                 xb = xb.to(device)
                 yb = yb.to(device).squeeze(-1)
-                val_running += criterion(model(xb), yb).item() * len(xb)
-        val_loss = val_running / len(test_loader.dataset)
-        val_losses.append(val_loss)
+                test_running += criterion(model(xb), yb).item() * len(xb)
+        test_loss = test_running / len(test_loader.dataset)
+        test_losses.append(test_loss)
 
         epoch_elapsed = time.perf_counter() - epoch_start
         epoch_times.append(epoch_elapsed)
 
-        # --- print every 100 epochs ---
-        if (epoch + 1) % 100 == 0:
+        # --- print every 500 epochs ---
+        if (epoch + 1) % 500 == 0:
             with torch.no_grad():
-                ep_pred_te = model(
-                    torch.from_numpy(X_te).to(device)
-                ).cpu().numpy()
-            ep_r2 = r2_score(y_te_1d.squeeze(), ep_pred_te)
-            print(f'    epoch {epoch+1:4d} | train_loss={train_losses[-1]:.6f} | '
-                  f'val_loss={val_loss:.6f} | test R2={ep_r2:.4f} | '
+                ep_pred_tr = model(torch.from_numpy(X_tr).to(device)).cpu().numpy()
+                ep_pred_te = model(torch.from_numpy(X_te).to(device)).cpu().numpy()
+            ep_tr_r2 = r2_score(y_tr_1d.squeeze(), ep_pred_tr)
+            ep_te_r2 = r2_score(y_te_1d.squeeze(), ep_pred_te)
+            print(f'    epoch {epoch+1:4d} | '
+                  f'train MSE={train_losses[-1]:.6f} | test MSE={test_loss:.6f} | '
+                  f'train R2={ep_tr_r2:.4f} | test R2={ep_te_r2:.4f} | '
                   f'time={epoch_elapsed:.2f}s')
 
         # --- early stopping ---
-        if val_loss < best_val:
-            best_val   = val_loss
+        if test_loss < best_test:
+            best_test  = test_loss
             no_improve = 0
             best_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
         else:
@@ -124,7 +125,7 @@ def train_one_model(output_name, X_tr, Y_tr, X_te, Y_te,
     train_r2 = r2_score(y_tr_1d.squeeze(), pred_tr)
     test_r2  = r2_score(y_te_1d.squeeze(), pred_te)
 
-    return (model, train_losses, val_losses,
+    return (model, train_losses, test_losses,
             train_r2, test_r2,
             y_tr_1d.squeeze(), y_te_1d.squeeze(),
             pred_tr, pred_te,
@@ -158,7 +159,7 @@ def run_iterative_training(output_name, X_train_all, Y_train_all, X_test, Y_test
     Returns
     -------
     final_result : dict with keys:
-        model, train_losses, val_losses, train_r2, test_r2,
+        model, train_losses, test_losses, train_r2, test_r2,
         y_tr_true, y_te_true, pred_tr, pred_te, r2_curve, final_n, epoch_times
     """
     SEP = "=" * 60
@@ -178,7 +179,7 @@ def run_iterative_training(output_name, X_train_all, Y_train_all, X_test, Y_test
         iter_start = time.perf_counter()
         print(f"\n  -- iter {iteration:3d} | n={n_samples:7,} --")
 
-        (model, tr_loss, val_loss,
+        (model, tr_loss, te_loss,
          tr_r2, te_r2,
          y_tr_true, y_te_true,
          pred_tr, pred_te,
@@ -200,7 +201,7 @@ def run_iterative_training(output_name, X_train_all, Y_train_all, X_test, Y_test
             final_result = dict(
                 model        = model,
                 train_losses = tr_loss,
-                val_losses   = val_loss,
+                test_losses  = te_loss,
                 train_r2     = tr_r2,
                 test_r2      = te_r2,
                 y_tr_true    = y_tr_true,
@@ -278,8 +279,8 @@ def plot_results(output_name, result, r2_threshold, save_path=None):
 
     # -- Col 1: Loss curve --
     epochs = range(1, len(result['train_losses']) + 1)
-    axes[1].plot(epochs, result['train_losses'], label='Train',      color='steelblue',  lw=1.2)
-    axes[1].plot(epochs, result['val_losses'],   label='Validation', color='darkorange', lw=1.2)
+    axes[1].plot(epochs, result['train_losses'], label='Train', color='steelblue',  lw=1.2)
+    axes[1].plot(epochs, result['test_losses'],  label='Test',  color='darkorange', lw=1.2)
     axes[1].set_xlabel('Epoch')
     axes[1].set_ylabel('MSE Loss')
     axes[1].set_yscale('log')
