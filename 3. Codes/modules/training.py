@@ -10,6 +10,19 @@ from modules.model import build_model
 from modules.preprocessing import make_loaders, INPUT_COLS
 
 
+def _fmt_time(seconds):
+    seconds = int(seconds)
+    if seconds < 60:
+        return f'{seconds}s'
+    elif seconds < 3600:
+        return f'{seconds // 60}m {seconds % 60}s'
+    else:
+        h = seconds // 3600
+        m = (seconds % 3600) // 60
+        s = seconds % 60
+        return f'{h}h {m}m {s}s'
+
+
 # ---------------------------------------------------------------------------
 # Single-model training
 # ---------------------------------------------------------------------------
@@ -58,9 +71,10 @@ def train_one_model(output_name, X_tr, Y_tr, X_te, Y_te,
 
     train_losses, test_losses = [], []
     epoch_times = []
-    best_test  = float('inf')
-    no_improve = 0
-    best_state = None
+    best_test    = float('inf')
+    no_improve   = 0
+    best_state   = None
+    train_start  = time.perf_counter()
 
     for epoch in range(max_epochs):
         epoch_start = time.perf_counter()
@@ -97,12 +111,13 @@ def train_one_model(output_name, X_tr, Y_tr, X_te, Y_te,
             with torch.no_grad():
                 ep_pred_tr = model(torch.from_numpy(X_tr).to(device)).cpu().numpy()
                 ep_pred_te = model(torch.from_numpy(X_te).to(device)).cpu().numpy()
-            ep_tr_r2 = r2_score(y_tr_1d.squeeze(), ep_pred_tr)
-            ep_te_r2 = r2_score(y_te_1d.squeeze(), ep_pred_te)
+            ep_tr_r2     = r2_score(y_tr_1d.squeeze(), ep_pred_tr)
+            ep_te_r2     = r2_score(y_te_1d.squeeze(), ep_pred_te)
+            cumulative_t = time.perf_counter() - train_start
             print(f'    epoch {epoch+1:4d} | '
                   f'train MSE={train_losses[-1]:.6f} | test MSE={test_loss:.6f} | '
                   f'train R2={ep_tr_r2:.4f} | test R2={ep_te_r2:.4f} | '
-                  f'time={epoch_elapsed:.2f}s')
+                  f'cumulative time={_fmt_time(cumulative_t)}')
 
         # --- early stopping ---
         if test_loss < best_test:
