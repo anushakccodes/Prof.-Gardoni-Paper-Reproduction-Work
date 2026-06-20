@@ -1,0 +1,94 @@
+# Hyperparameters for DNN surrogate capacity models
+# Source: Xing et al. (2024), Computer Methods in Applied Mechanics and Engineering
+
+# Dataset
+dataset:
+  total_size: 110649           # actual usable rows in DNN_dataset_cleaned.csv (author sent 160k raw; ~49k removed after cleaning)
+  initial_size: 2000           # samples per iteration batch (Latin hypercube sampling)
+  increment_per_iter: 2000
+  max_iterations: 50           # 50 iterations (paper states 40)
+  train_split: 0.80
+  test_split: 0.20
+  r2_threshold: 0.90           # stop adding data once R² exceeds this
+
+# Standard DNN (Table 2)
+# Architecture shared across all 8 output models unless overridden below
+dnn_default:
+  num_hidden_layers: 6         # 6 hidden layers (not counting input/output layers): 2 × 128 neurons + 4 × 64 neurons
+  neurons_per_layer: [128, 128, 64, 64, 64, 64]
+  batch_size: 128
+  weight_decay: 0.4            # L2 regularization coefficient
+  dropout_rate: 0.2
+  batch_norm: true
+  optimizer: Adam
+  initial_lr: 1.0e-5
+  max_epochs: 3000
+  early_stopping_patience: 500
+  loss_function: MSE
+  num_inputs: 23               # 23 sampled variables fed to the DNN (the 6 derived features in Table 1 are computed beforehand, not separate DNN inputs)
+  
+# Per-output overrides where the paper specifies different values (Table 2)
+dnn_outputs:
+  Dy:  { neurons_per_layer: [128, 128, 64, 64, 64, 64], batch_size: 128, weight_decay: 0.4,  dropout_rate: 0.20 }
+  Vy:  { neurons_per_layer: [128, 128, 64, 64, 64, 64], batch_size: 128, weight_decay: 0.4,  dropout_rate: 0.20 }
+  IDy: { neurons_per_layer: [128, 128, 64, 64, 64, 64], batch_size: 128, weight_decay: 0.4,  dropout_rate: 0.20 }
+  IVy: { neurons_per_layer: [128, 128, 64, 64, 64, 64], batch_size: 128, weight_decay: 0.1,  dropout_rate: 0.20 }
+  Du:  { neurons_per_layer: [256, 128, 64, 64, 64, 64], batch_size: 128, weight_decay: 2.0,  dropout_rate: 0.30 }
+  Vu:  { neurons_per_layer: [128, 128, 64, 64, 64, 64], batch_size: 256, weight_decay: 0.4,  dropout_rate: 0.15 }
+  IDu: { neurons_per_layer: [256, 128, 64, 64, 64, 64], batch_size: 128, weight_decay: 1.5,  dropout_rate: 0.25 }
+  IVu: { neurons_per_layer: [256, 128, 128, 64, 64, 64], batch_size: 128, weight_decay: 0.4, dropout_rate: 0.20 }
+
+# Log-transformed DNN (Table 4) 
+# Applied to Du and IDu only (strong nonlinearity targets)
+log_dnn:
+  output_transform: log        # apply ln() to Du and IDu before training
+  num_layers: 10
+  optimizer: Adam
+  initial_lr: 1.0e-5           # paper does not change this for log-DNNs
+  max_epochs: 3000
+  early_stopping_patience: 500
+  loss_function: MSE
+  batch_norm: true
+  outputs:
+    ln_Du:  { neurons_per_layer: [256, 128, 64, 64, 64, 64, 64, 64, 64, 64], batch_size: 128, weight_decay: 1.0, dropout_rate: 0.20 }
+    ln_IDu: { neurons_per_layer: [128, 128, 64, 64, 64, 64, 64, 64, 64, 64], batch_size: 128, weight_decay: 0.4, dropout_rate: 0.20 }
+
+# Transformer (Table 4)
+# 4-variable output: [Dy, IDy, Du, IDu]
+transformer:
+  output_sequence: [Dy, IDy, Du, IDu]
+  num_inputs: 23
+  optimizer: AdamW
+  initial_lr: 1.0e-4
+  max_epochs: 1000
+  early_stopping_patience: 50
+  batch_size: 64
+  weight_decay: 0.4
+  dropout_rate: 0.2
+  normalize_inputs: true
+  # encoder-decoder layers
+  num_encoder_decoder_layers: 6
+  hidden_size: 80
+  num_attention_heads: 8
+  # fully-connected head after Transformer
+  num_fc_layers: 2
+  fc_neurons: 64
+  activation: ReLU
+  use_mask: false              # no mask used (same-length output sequence)
+  # learning rate scheduler (ReduceLROnPlateau)
+  lr_scheduler:
+    factor: 0.2
+    patience: 10
+
+# Fragility estimation (Monte Carlo)
+fragility:
+  method: MCS
+  fixed_external_dims:         # fixed for the example RCF in Section 5
+    B: 7       # m
+    D: 5       # m
+    H: 4       # m
+    B_num: 2
+    D_num: 2
+    H_num: 4
+  hyperparameter_uncertainty:  # COV for weight_decay and dropout_rate (Section 5.1)
+    cov: 0.20

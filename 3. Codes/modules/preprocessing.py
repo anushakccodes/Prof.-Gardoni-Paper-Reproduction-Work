@@ -1,10 +1,7 @@
 import yaml
-import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import Dataset, DataLoader
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -54,48 +51,29 @@ def load_config(yaml_path):
 
 
 # ---------------------------------------------------------------------------
-# Data loading & splitting
+# Data loading
 # ---------------------------------------------------------------------------
 
-def load_and_split(data_path, input_cols, output_names, train_split):
-    """Load CSV and split using the pre-assigned 'split' column.
+def load_dataset(data_path, input_cols, output_names):
+    """Load the full cleaned CSV without splitting.
 
     The cleaned dataset (DNN_dataset_cleaned.csv, 110,649 rows) is the
-    dataset used to produce the paper's results. The 'split' column
-    pre-assigns each row to 'train' or 'test'.
+    dataset pool used by the iterative training loop. Each training iteration
+    chooses the first n samples from this pool, then creates its own 80/20
+    train/test split from that iteration-sized subset.
 
     Returns
     -------
-    X_train_all : np.ndarray (n_train, n_features) float32, scaled
-    X_test      : np.ndarray (n_test,  n_features) float32, scaled
-    Y_train_all : np.ndarray (n_train, n_outputs)  float32, unscaled
-    Y_test      : np.ndarray (n_test,  n_outputs)  float32, unscaled
-    scaler      : fitted StandardScaler
+    X_all : np.ndarray (n_rows, n_features) float32, unscaled
+    Y_all : np.ndarray (n_rows, n_outputs)  float32, unscaled
     """
     df = pd.read_csv(data_path)
     print(f'Loaded {len(df):,} rows x {len(df.columns)} columns')
 
-    if 'split' in df.columns:
-        train_df = df[df['split'] == 'train'].reset_index(drop=True)
-        test_df  = df[df['split'] == 'test'].reset_index(drop=True)
-        print(f'Using split column  --  train: {len(train_df):,}  |  test: {len(test_df):,}')
-    else:
-        train_df, test_df = train_test_split(
-            df, test_size=1.0 - train_split, random_state=42
-        )
-        train_df = train_df.reset_index(drop=True)
-        test_df  = test_df.reset_index(drop=True)
-        print(f'Random split  --  train: {len(train_df):,}  |  test: {len(test_df):,}')
+    X_all = df[input_cols].values.astype('float32')
+    Y_all = df[output_names].values.astype('float32')
 
-    scaler = StandardScaler()
-    scaler.fit(train_df[input_cols])
-
-    X_train_all = scaler.transform(train_df[input_cols]).astype('float32')
-    X_test      = scaler.transform(test_df[input_cols]).astype('float32')
-    Y_train_all = train_df[output_names].values.astype('float32')
-    Y_test      = test_df[output_names].values.astype('float32')
-
-    return X_train_all, X_test, Y_train_all, Y_test, scaler
+    return X_all, Y_all
 
 
 # ---------------------------------------------------------------------------

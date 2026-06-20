@@ -1,0 +1,61 @@
+Log file: logs/train_Dy_20260617_115349.out
+
+============================================================
+  TRAINING FOR OUTPUT: Dy
+============================================================
+
+  ITERATION   1 | TOTAL SAMPLES=  2,000 | TRAIN=  1,600 | TEST=    400
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.529253      0.508177     0.5950    0.5453           34s
+      1000      0.321285      0.396753     0.7881    0.6450         1m 8s
+      1500      0.201894      0.379510     0.9044    0.6604        1m 41s
+    Early stopping at epoch 1776.
+
+  ITER   1 DONE | n=  2,000 | train R2=0.8734 | test R2=0.6715 | iter time=2m 1s  (epochs total=2m 0s)
+
+  *** Best model checkpoint updated (test R2=0.6715): checkpoints/dnn_Dy_best.pt
+
+  ITERATION   2 | TOTAL SAMPLES=  4,000 | TRAIN=  3,200 | TEST=    800
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.358818      0.348033     0.7318    0.6280         1m 3s
+      1000      0.210110      0.308783     0.8758    0.6700         2m 8s
+    Early stopping at epoch 1477.
+
+  ITER   2 DONE | n=  4,000 | train R2=0.8915 | test R2=0.6853 | iter time=3m 9s  (epochs total=3m 9s)
+
+  *** Best model checkpoint updated (test R2=0.6853): checkpoints/dnn_Dy_best.pt
+
+  ITERATION   3 | TOTAL SAMPLES=  6,000 | TRAIN=  4,800 | TEST=  1,200
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.272370      0.323615     0.7806    0.6679        1m 38s
+      1000      0.189819      0.301593     0.8800    0.6905        3m 18s
+      1500      0.161582      0.303578     0.8780    0.6885        4m 58s
+    Early stopping at epoch 1727.
+
+  ITER   3 DONE | n=  6,000 | train R2=0.8953 | test R2=0.7067 | iter time=5m 43s  (epochs total=5m 43s)
+
+  *** Best model checkpoint updated (test R2=0.7067): checkpoints/dnn_Dy_best.pt
+
+  ITERATION   4 | TOTAL SAMPLES=  8,000 | TRAIN=  6,400 | TEST=  1,600
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.254185      0.291553     0.8095    0.7117        2m 10s
+      1000      0.193265      0.298148     0.8441    0.7051        4m 19s
+    Early stopping at epoch 1466.
+
+  ITER   4 DONE | n=  8,000 | train R2=0.8675 | test R2=0.7299 | iter time=6m 19s  (epochs total=6m 19s)
+
+  *** Best model checkpoint updated (test R2=0.7299): checkpoints/dnn_Dy_best.pt
+
+  ITERATION   5 | TOTAL SAMPLES= 10,000 | TRAIN=  8,000 | TEST=  2,000
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.245844      0.245229     0.8165    0.7448        2m 42s

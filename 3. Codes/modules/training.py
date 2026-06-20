@@ -1,10 +1,14 @@
+import sys
 import time
 import numpy as np
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 from pathlib import Path
+from contextlib import redirect_stdout
 from sklearn.metrics import r2_score
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 from modules.model import build_model
 from modules.preprocessing import make_loaders, INPUT_COLS
@@ -12,6 +16,22 @@ from modules.preprocessing import make_loaders, INPUT_COLS
 # Fixed seed for reproducible weight initialisation and DataLoader shuffling.
 # The paper does not state a seed; this value gives consistent run-to-run results.
 GLOBAL_SEED = 42
+
+
+class _Tee:
+    """Write stdout to the notebook and a log file at the same time."""
+
+    def __init__(self, *streams):
+        self.streams = streams
+
+    def write(self, data):
+        for stream in self.streams:
+            stream.write(data)
+            stream.flush()
+
+    def flush(self):
+        for stream in self.streams:
+            stream.flush()
 
 
 def _fmt_time(seconds):
@@ -27,19 +47,95 @@ def _fmt_time(seconds):
         return f'{h}h {m}m {s}s'
 
 
+def _print_epoch_log_header():
+    print()
+    print(
+        f"    {'Epoch':>6}  "
+        f"{'Train MSE':>12}  "
+        f"{'Test MSE':>12}  "
+        f"{'Train R2':>9}  "
+        f"{'Test R2':>8}  "
+        f"{'Time':>12}"
+    )
+    print(
+        f"    {'-' * 6}  "
+        f"{'-' * 12}  "
+        f"{'-' * 12}  "
+        f"{'-' * 9}  "
+        f"{'-' * 8}  "
+        f"{'-' * 12}"
+    )
+
+
+def _print_epoch_log_row(epoch, train_mse, test_mse, train_r2, test_r2, cumulative_time):
+    print(
+        f"    {epoch:6d}  "
+        f"{train_mse:12.6f}  "
+        f"{test_mse:12.6f}  "
+        f"{train_r2:9.4f}  "
+        f"{test_r2:8.4f}  "
+        f"{_fmt_time(cumulative_time):>12}"
+    )
+
+
+def _save_best_checkpoint(model, output_name, iteration, n_samples, train_n, test_n,
+                          train_r2, test_r2, input_scaler, target_scaler,
+                          output_names, checkpoint_dir):
+    checkpoint_dir = Path(checkpoint_dir)
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
+    path = checkpoint_dir / f"dnn_{output_name}_best.pt"
+
+    torch.save(
+        {
+            "output_name": output_name,
+            "iteration": iteration,
+            "total_n": n_samples,
+            "train_n": train_n,
+            "test_n": test_n,
+            "train_r2": train_r2,
+            "test_r2": test_r2,
+            "input_cols": INPUT_COLS,
+            "output_names": output_names,
+            "model_state_dict": {
+                k: v.detach().cpu().clone() for k, v in model.state_dict().items()
+            },
+            "input_scaler_type": "MinMaxScaler",
+            "input_scaler_min": input_scaler.min_,
+            "input_scaler_scale": input_scaler.scale_,
+            "input_scaler_data_min": input_scaler.data_min_,
+            "input_scaler_data_max": input_scaler.data_max_,
+            "input_scaler_data_range": input_scaler.data_range_,
+            "target_scaler_type": "StandardScaler",
+            "target_scaler_mean": target_scaler.mean_,
+            "target_scaler_scale": target_scaler.scale_,
+            "target_scaler_var": target_scaler.var_,
+        },
+        path,
+    )
+
+    return path
+
+
+def _inverse_target(values, target_scaler):
+    values = np.asarray(values).reshape(-1, 1)
+    return target_scaler.inverse_transform(values).squeeze()
+
+
 # ---------------------------------------------------------------------------
 # Single-model training
 # ---------------------------------------------------------------------------
 
 def train_one_model(output_name, X_tr, Y_tr, X_te, Y_te,
-                    output_names, outs_cfg, defaults_cfg, device):
+                    output_names, outs_cfg, defaults_cfg, device,
+                    target_scaler):
     """Train a single DNN for one output column.
 
     Parameters
     ----------
     output_name  : target name, e.g. 'Dy'
-    X_tr, Y_tr   : training features and all-output labels (numpy, float32)
-    X_te, Y_te   : test features and all-output labels (numpy, float32)
+    X_tr, Y_tr   : normalized training features and labels (numpy, float32)
+    X_te, Y_te   : normalized test features and labels (numpy, float32)
     output_names : ordered list of all output names
     outs_cfg     : dnn_outputs dict from hyperparameters.yaml
     defaults_cfg : dnn_default dict from hyperparameters.yaml
@@ -50,8 +146,8 @@ def train_one_model(output_name, X_tr, Y_tr, X_te, Y_te,
     model                    : best-checkpoint DNNModel
     train_losses, test_losses : per-epoch MSE lists
     train_r2, test_r2        : final R^2 scores
-    y_tr_true, y_te_true     : ground-truth 1-D numpy arrays
-    pred_tr, pred_te         : prediction 1-D numpy arrays
+    y_tr_true, y_te_true     : ground-truth 1-D numpy arrays in original units
+    pred_tr, pred_te         : prediction 1-D numpy arrays in original units
     epoch_times              : per-epoch wall-clock times (seconds)
     """
     torch.manual_seed(GLOBAL_SEED)
@@ -82,6 +178,7 @@ def train_one_model(output_name, X_tr, Y_tr, X_te, Y_te,
     no_improve   = 0
     best_state   = None
     train_start  = time.perf_counter()
+    _print_epoch_log_header()
 
     for epoch in range(max_epochs):
         epoch_start = time.perf_counter()
@@ -116,15 +213,23 @@ def train_one_model(output_name, X_tr, Y_tr, X_te, Y_te,
         # --- print every 500 epochs ---
         if (epoch + 1) % 500 == 0:
             with torch.no_grad():
-                ep_pred_tr = model(torch.from_numpy(X_tr).to(device)).cpu().numpy()
-                ep_pred_te = model(torch.from_numpy(X_te).to(device)).cpu().numpy()
-            ep_tr_r2     = r2_score(y_tr_1d.squeeze(), ep_pred_tr)
-            ep_te_r2     = r2_score(y_te_1d.squeeze(), ep_pred_te)
+                ep_pred_tr_scaled = model(torch.from_numpy(X_tr).to(device)).cpu().numpy()
+                ep_pred_te_scaled = model(torch.from_numpy(X_te).to(device)).cpu().numpy()
+            ep_tr_true = _inverse_target(y_tr_1d, target_scaler)
+            ep_te_true = _inverse_target(y_te_1d, target_scaler)
+            ep_pred_tr = _inverse_target(ep_pred_tr_scaled, target_scaler)
+            ep_pred_te = _inverse_target(ep_pred_te_scaled, target_scaler)
+            ep_tr_r2   = r2_score(ep_tr_true, ep_pred_tr)
+            ep_te_r2   = r2_score(ep_te_true, ep_pred_te)
             cumulative_t = time.perf_counter() - train_start
-            print(f'    epoch {epoch+1:4d} | '
-                  f'train MSE={train_losses[-1]:.6f} | test MSE={test_loss:.6f} | '
-                  f'train R2={ep_tr_r2:.4f} | test R2={ep_te_r2:.4f} | '
-                  f'cumulative time={_fmt_time(cumulative_t)}')
+            _print_epoch_log_row(
+                epoch + 1,
+                train_losses[-1],
+                test_loss,
+                ep_tr_r2,
+                ep_te_r2,
+                cumulative_t,
+            )
 
         # --- early stopping ---
         if test_loss < best_test:
@@ -141,15 +246,20 @@ def train_one_model(output_name, X_tr, Y_tr, X_te, Y_te,
     model.eval()
 
     with torch.no_grad():
-        pred_tr = model(torch.from_numpy(X_tr).to(device)).cpu().numpy()
-        pred_te = model(torch.from_numpy(X_te).to(device)).cpu().numpy()
+        pred_tr_scaled = model(torch.from_numpy(X_tr).to(device)).cpu().numpy()
+        pred_te_scaled = model(torch.from_numpy(X_te).to(device)).cpu().numpy()
 
-    train_r2 = r2_score(y_tr_1d.squeeze(), pred_tr)
-    test_r2  = r2_score(y_te_1d.squeeze(), pred_te)
+    y_tr_true = _inverse_target(y_tr_1d, target_scaler)
+    y_te_true = _inverse_target(y_te_1d, target_scaler)
+    pred_tr = _inverse_target(pred_tr_scaled, target_scaler)
+    pred_te = _inverse_target(pred_te_scaled, target_scaler)
+
+    train_r2 = r2_score(y_tr_true, pred_tr)
+    test_r2  = r2_score(y_te_true, pred_te)
 
     return (model, train_losses, test_losses,
             train_r2, test_r2,
-            y_tr_1d.squeeze(), y_te_1d.squeeze(),
+            y_tr_true, y_te_true,
             pred_tr, pred_te,
             epoch_times)
 
@@ -158,18 +268,51 @@ def train_one_model(output_name, X_tr, Y_tr, X_te, Y_te,
 # Iterative training loop
 # ---------------------------------------------------------------------------
 
-def run_iterative_training(output_name, X_train_all, Y_train_all, X_test, Y_test,
+def run_iterative_training(output_name, X_all, Y_all, train_split,
                            increment, max_iter, r2_threshold,
-                           output_names, outs_cfg, defaults_cfg, device):
-    """Grow training set iteratively until R2 threshold is met or data exhausted.
+                           output_names, outs_cfg, defaults_cfg, device,
+                           log_path=None, checkpoint_dir=None):
+    """Run iterative training, optionally teeing stdout to log_path."""
+    if log_path is not None:
+        log_path = Path(log_path)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        with log_path.open("w", encoding="utf-8") as log_fh:
+            with redirect_stdout(_Tee(sys.stdout, log_fh)):
+                print(f"Log file: {log_path}")
+                return _run_iterative_training(
+                    output_name, X_all, Y_all, train_split,
+                    increment, max_iter, r2_threshold,
+                    output_names, outs_cfg, defaults_cfg, device,
+                    checkpoint_dir=checkpoint_dir,
+                )
+
+    return _run_iterative_training(
+        output_name, X_all, Y_all, train_split,
+        increment, max_iter, r2_threshold,
+        output_names, outs_cfg, defaults_cfg, device,
+        checkpoint_dir=checkpoint_dir,
+    )
+
+
+def _run_iterative_training(output_name, X_all, Y_all, train_split,
+                            increment, max_iter, r2_threshold,
+                            output_names, outs_cfg, defaults_cfg, device,
+                            checkpoint_dir=None):
+    """Grow total dataset size iteratively until R2 threshold is met or data exhausted.
+
+    At each iteration, the first n rows are selected from the full dataset pool.
+    That n-row subset is then split into train/test sets using train_split.
+    A fresh MinMaxScaler is fitted on that iteration's training inputs only.
+    A fresh StandardScaler is fitted on that iteration's training target only.
+    If checkpoint_dir is provided, each new best model overwrites the stable
+    best checkpoint file for this output.
 
     Parameters
     ----------
     output_name   : target name, e.g. 'Dy'
-    X_train_all   : full scaled training features (numpy, float32)
-    Y_train_all   : full training labels (numpy, float32)
-    X_test        : test features (numpy, float32)
-    Y_test        : test labels (numpy, float32)
+    X_all         : full unscaled feature pool (numpy, float32)
+    Y_all         : full label pool (numpy, float32)
+    train_split   : fraction of each iteration subset used for training
     increment     : number of extra samples added per iteration
     max_iter      : maximum number of iterations
     r2_threshold  : R2 value at which to stop early
@@ -177,16 +320,18 @@ def run_iterative_training(output_name, X_train_all, Y_train_all, X_test, Y_test
     outs_cfg      : dnn_outputs dict from hyperparameters.yaml
     defaults_cfg  : dnn_default dict from hyperparameters.yaml
     device        : torch.device
+    checkpoint_dir: directory for new-best checkpoint files, or None
 
     Returns
     -------
     final_result : dict with keys:
         model, train_losses, test_losses, train_r2, test_r2,
-        y_tr_true, y_te_true, pred_tr, pred_te, r2_curve, final_n, epoch_times
+        y_tr_true, y_te_true, pred_tr, pred_te, r2_curve, final_n,
+        train_n, test_n, input_scaler, target_scaler, checkpoint_path, epoch_times
     """
     SEP = "=" * 60
     print("\n" + SEP)
-    print(f"  Training: {output_name}")
+    print(f"  TRAINING FOR OUTPUT: {output_name}")
     print(SEP)
 
     r2_curve     = []
@@ -194,32 +339,76 @@ def run_iterative_training(output_name, X_train_all, Y_train_all, X_test, Y_test
     best_te_r2   = -float('inf')
 
     for iteration in range(1, max_iter + 1):
-        n_samples = min(iteration * increment, len(X_train_all))
-        X_tr = X_train_all[:n_samples]
-        Y_tr = Y_train_all[:n_samples]
+        n_samples = min(iteration * increment, len(X_all))
+        X_subset = X_all[:n_samples]
+        Y_subset = Y_all[:n_samples]
+
+        X_tr_raw, X_te_raw, Y_tr, Y_te = train_test_split(
+            X_subset,
+            Y_subset,
+            train_size=train_split,
+            random_state=GLOBAL_SEED,
+            shuffle=True,
+        )
+
+        input_scaler = MinMaxScaler()
+        X_tr = input_scaler.fit_transform(X_tr_raw).astype('float32')
+        X_te = input_scaler.transform(X_te_raw).astype('float32')
+
+        out_idx = output_names.index(output_name)
+        target_scaler = StandardScaler()
+        Y_tr_scaled = Y_tr.copy()
+        Y_te_scaled = Y_te.copy()
+        Y_tr_scaled[:, out_idx] = target_scaler.fit_transform(
+            Y_tr[:, out_idx].reshape(-1, 1)
+        ).squeeze()
+        Y_te_scaled[:, out_idx] = target_scaler.transform(
+            Y_te[:, out_idx].reshape(-1, 1)
+        ).squeeze()
 
         iter_start = time.perf_counter()
-        print(f"\n  -- iter {iteration:3d} | n={n_samples:7,} --")
+        print(
+            f"\n  ITERATION {iteration:3d} | TOTAL SAMPLES={n_samples:7,} "
+            f"| TRAIN={len(X_tr):7,} | TEST={len(X_te):7,}"
+        )
 
         (model, tr_loss, te_loss,
          tr_r2, te_r2,
          y_tr_true, y_te_true,
          pred_tr, pred_te,
          epoch_times) = train_one_model(
-            output_name, X_tr, Y_tr, X_test, Y_test,
-            output_names, outs_cfg, defaults_cfg, device
+            output_name, X_tr, Y_tr_scaled, X_te, Y_te_scaled,
+            output_names, outs_cfg, defaults_cfg, device,
+            target_scaler=target_scaler,
         )
 
         iter_elapsed = time.perf_counter() - iter_start
         epoch_total  = sum(epoch_times)
 
         r2_curve.append((n_samples, te_r2))
-        print(f"  iter {iteration:3d} DONE | n={n_samples:7,} | "
+        print(f"\n  ITER {iteration:3d} DONE | n={n_samples:7,} | "
               f"train R2={tr_r2:.4f} | test R2={te_r2:.4f} | "
-              f"iter time={iter_elapsed:.1f}s  (epochs total={epoch_total:.1f}s)")
+              f"iter time={_fmt_time(iter_elapsed)}  (epochs total={_fmt_time(epoch_total)})")
 
         if te_r2 > best_te_r2:
             best_te_r2   = te_r2
+            checkpoint_path = None
+            if checkpoint_dir is not None:
+                checkpoint_path = _save_best_checkpoint(
+                    model=model,
+                    output_name=output_name,
+                    iteration=iteration,
+                    n_samples=n_samples,
+                    train_n=len(X_tr),
+                    test_n=len(X_te),
+                    train_r2=tr_r2,
+                    test_r2=te_r2,
+                    input_scaler=input_scaler,
+                    target_scaler=target_scaler,
+                    output_names=output_names,
+                    checkpoint_dir=checkpoint_dir,
+                )
+
             final_result = dict(
                 model        = model,
                 train_losses = tr_loss,
@@ -232,24 +421,40 @@ def run_iterative_training(output_name, X_train_all, Y_train_all, X_test, Y_test
                 pred_te      = pred_te,
                 r2_curve     = r2_curve,
                 final_n      = n_samples,
+                train_n      = len(X_tr),
+                test_n       = len(X_te),
+                input_scaler = input_scaler,
+                target_scaler = target_scaler,
+                checkpoint_path = checkpoint_path,
                 epoch_times  = epoch_times,
             )
-            print(f"  *** New best model saved (test R2={te_r2:.4f})")
+            if checkpoint_path is not None:
+                print(
+                    f"\n  *** Best model checkpoint updated "
+                    f"(test R2={te_r2:.4f}): {checkpoint_path}"
+                )
+            else:
+                print(f"\n  *** New best model saved with test R2={te_r2:.4f}")
         else:
-            print(f"  --- No improvement (best so far: test R2={best_te_r2:.4f})")
+            print(f"\n  --- No improvement (best so far: test R2={best_te_r2:.4f})")
 
         if te_r2 >= r2_threshold:
-            print(f"  >>> R2 threshold {r2_threshold} reached at n={n_samples:,}. Stopping.")
+            print(f"\n  >>> R2 threshold {r2_threshold} reached at n={n_samples:,}. Stopping.")
             break
 
-        if n_samples >= len(X_train_all):
-            print("  >>> Full training set used. Stopping.")
+        if n_samples >= len(X_all):
+            print("\n  >>> Full dataset pool used. Stopping.")
             break
 
     tr2 = final_result["train_r2"]
     te2 = final_result["test_r2"]
     fn  = final_result["final_n"]
-    print(f"\n  Best model -- n={fn:,} | train R2={tr2:.4f}  test R2={te2:.4f}")
+    tn  = final_result["train_n"]
+    vn  = final_result["test_n"]
+    print(
+        f"\n  Best model -- total n={fn:,} "
+        f"(train={tn:,}, test={vn:,}) | train R2={tr2:.4f}  test R2={te2:.4f}"
+    )
 
     return final_result
 
@@ -292,7 +497,7 @@ def plot_results(output_name, result, r2_threshold, save_path=None):
     axes[0].plot(sizes, r2s, 'o-', color='steelblue', lw=1.5, ms=4)
     axes[0].axhline(r2_threshold, color='red', ls='--', lw=1,
                     label=f'threshold={r2_threshold}')
-    axes[0].set_xlabel('Dataset size')
+    axes[0].set_xlabel('Total subset size')
     axes[0].set_ylabel('Test R2')
     axes[0].set_ylim(max(0, min(r2s) - 0.05), 1.02)
     axes[0].legend(fontsize=8)

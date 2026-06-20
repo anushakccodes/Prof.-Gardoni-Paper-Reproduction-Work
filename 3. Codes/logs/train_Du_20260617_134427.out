@@ -1,0 +1,24 @@
+Log file: logs/train_Du_20260617_134427.out
+
+============================================================
+  TRAINING FOR OUTPUT: Du
+============================================================
+
+  ITERATION   1 | TOTAL SAMPLES=  2,000 | TRAIN=  1,600 | TEST=    400
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.631159      0.521578     0.4702    0.4430           28s
+      1000      0.290401      0.368729     0.8750    0.6062           57s
+      1500      0.191307      0.370821     0.9227    0.6040        1m 25s
+    Early stopping at epoch 1793.
+
+  ITER   1 DONE | n=  2,000 | train R2=0.9187 | test R2=0.6242 | iter time=1m 43s  (epochs total=1m 41s)
+
+  *** Best model checkpoint updated (test R2=0.6242): checkpoints/dnn_Du_best.pt
+
+  ITERATION   2 | TOTAL SAMPLES=  4,000 | TRAIN=  3,200 | TEST=    800
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.376515      0.411259     0.7624    0.5777           57s

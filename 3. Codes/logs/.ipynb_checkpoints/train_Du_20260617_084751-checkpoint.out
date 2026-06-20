@@ -1,0 +1,304 @@
+Log file: logs/train_Du_20260617_084751.out
+
+============================================================
+  TRAINING FOR OUTPUT: Du
+============================================================
+
+  ITERATION   1 | TOTAL SAMPLES=  2,000 | TRAIN=  1,600 | TEST=    400
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.631159      0.521578     0.4702    0.4430           27s
+      1000      0.290401      0.368729     0.8750    0.6062           54s
+      1500      0.191307      0.370821     0.9227    0.6040        1m 19s
+    Early stopping at epoch 1793.
+
+  ITER   1 DONE | n=  2,000 | train R2=0.9187 | test R2=0.6242 | iter time=1m 35s  (epochs total=1m 34s)
+
+  *** Best model checkpoint updated (test R2=0.6242): checkpoints/dnn_Du_best.pt
+
+  ITERATION   2 | TOTAL SAMPLES=  4,000 | TRAIN=  3,200 | TEST=    800
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.376515      0.411259     0.7624    0.5777           51s
+      1000      0.204567      0.382940     0.8966    0.6068        1m 41s
+      1500      0.195553      0.382657     0.9104    0.6071        2m 32s
+    Early stopping at epoch 1737.
+
+  ITER   2 DONE | n=  4,000 | train R2=0.9107 | test R2=0.6359 | iter time=2m 57s  (epochs total=2m 56s)
+
+  *** Best model checkpoint updated (test R2=0.6359): checkpoints/dnn_Du_best.pt
+
+  ITERATION   3 | TOTAL SAMPLES=  6,000 | TRAIN=  4,800 | TEST=  1,200
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.300792      0.351513     0.8243    0.6244        1m 18s
+      1000      0.206942      0.332315     0.8931    0.6450        2m 36s
+      1500      0.234905      0.362437     0.8827    0.6128        3m 55s
+    Early stopping at epoch 1500.
+
+  ITER   3 DONE | n=  6,000 | train R2=0.8931 | test R2=0.6450 | iter time=3m 55s  (epochs total=3m 55s)
+
+  *** Best model checkpoint updated (test R2=0.6450): checkpoints/dnn_Du_best.pt
+
+  ITERATION   4 | TOTAL SAMPLES=  8,000 | TRAIN=  6,400 | TEST=  1,600
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.279584      0.325366     0.8395    0.6788        1m 40s
+      1000      0.250586      0.337353     0.8612    0.6669        3m 17s
+    Early stopping at epoch 1019.
+
+  ITER   4 DONE | n=  8,000 | train R2=0.8465 | test R2=0.6887 | iter time=3m 21s  (epochs total=3m 21s)
+
+  *** Best model checkpoint updated (test R2=0.6887): checkpoints/dnn_Du_best.pt
+
+  ITERATION   5 | TOTAL SAMPLES= 10,000 | TRAIN=  8,000 | TEST=  2,000
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.273371      0.325506     0.8436    0.6655         2m 3s
+      1000      0.295048      0.350704     0.8014    0.6396         4m 4s
+    Early stopping at epoch 1157.
+
+  ITER   5 DONE | n= 10,000 | train R2=0.8427 | test R2=0.6802 | iter time=4m 42s  (epochs total=4m 41s)
+
+  --- No improvement (best so far: test R2=0.6887)
+
+  ITERATION   6 | TOTAL SAMPLES= 12,000 | TRAIN=  9,600 | TEST=  2,400
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.275823      0.326848     0.8302    0.6500        2m 26s
+    Early stopping at epoch 940.
+
+  ITER   6 DONE | n= 12,000 | train R2=0.8237 | test R2=0.6717 | iter time=4m 34s  (epochs total=4m 33s)
+
+  --- No improvement (best so far: test R2=0.6887)
+
+  ITERATION   7 | TOTAL SAMPLES= 14,000 | TRAIN= 11,200 | TEST=  2,800
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.298997      0.285645     0.8104    0.7042        2m 49s
+    Early stopping at epoch 812.
+
+  ITER   7 DONE | n= 14,000 | train R2=0.7947 | test R2=0.7163 | iter time=4m 35s  (epochs total=4m 35s)
+
+  *** Best model checkpoint updated (test R2=0.7163): checkpoints/dnn_Du_best.pt
+
+  ITERATION   8 | TOTAL SAMPLES= 16,000 | TRAIN= 12,800 | TEST=  3,200
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.304621      0.336082     0.7912    0.6656        3m 12s
+    Early stopping at epoch 805.
+
+  ITER   8 DONE | n= 16,000 | train R2=0.7893 | test R2=0.6841 | iter time=5m 9s  (epochs total=5m 9s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION   9 | TOTAL SAMPLES= 18,000 | TRAIN= 14,400 | TEST=  3,600
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.329410      0.343755     0.7692    0.6567        3m 34s
+    Early stopping at epoch 750.
+
+  ITER   9 DONE | n= 18,000 | train R2=0.7765 | test R2=0.6934 | iter time=5m 21s  (epochs total=5m 21s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  10 | TOTAL SAMPLES= 20,000 | TRAIN= 16,000 | TEST=  4,000
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.347398      0.359392     0.7357    0.6501        3m 58s
+    Early stopping at epoch 781.
+
+  ITER  10 DONE | n= 20,000 | train R2=0.7824 | test R2=0.7031 | iter time=6m 15s  (epochs total=6m 14s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  11 | TOTAL SAMPLES= 22,000 | TRAIN= 17,600 | TEST=  4,400
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.390837      0.396115     0.6767    0.6102        4m 26s
+    Early stopping at epoch 737.
+
+  ITER  11 DONE | n= 22,000 | train R2=0.7674 | test R2=0.6992 | iter time=6m 31s  (epochs total=6m 31s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  12 | TOTAL SAMPLES= 24,000 | TRAIN= 19,200 | TEST=  4,800
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.440570      0.426278     0.6324    0.5777        4m 52s
+    Early stopping at epoch 707.
+
+  ITER  12 DONE | n= 24,000 | train R2=0.7560 | test R2=0.7045 | iter time=6m 50s  (epochs total=6m 50s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  13 | TOTAL SAMPLES= 26,000 | TRAIN= 20,800 | TEST=  5,200
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.526450      0.535391     0.5220    0.4712        5m 18s
+    Early stopping at epoch 726.
+
+  ITER  13 DONE | n= 26,000 | train R2=0.7575 | test R2=0.6816 | iter time=7m 39s  (epochs total=7m 38s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  14 | TOTAL SAMPLES= 28,000 | TRAIN= 22,400 | TEST=  5,600
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.659040      0.684840     0.3603    0.3420        5m 34s
+    Early stopping at epoch 689.
+
+  ITER  14 DONE | n= 28,000 | train R2=0.7519 | test R2=0.7067 | iter time=7m 40s  (epochs total=7m 40s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  15 | TOTAL SAMPLES= 30,000 | TRAIN= 24,000 | TEST=  6,000
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      0.879610      0.901181     0.1138    0.1108        5m 56s
+    Early stopping at epoch 689.
+
+  ITER  15 DONE | n= 30,000 | train R2=0.7540 | test R2=0.7000 | iter time=8m 10s  (epochs total=8m 10s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  16 | TOTAL SAMPLES= 32,000 | TRAIN= 25,600 | TEST=  6,400
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      1.000072      1.017143    -0.0001   -0.0003        6m 23s
+    Early stopping at epoch 676.
+
+  ITER  16 DONE | n= 32,000 | train R2=0.7436 | test R2=0.7125 | iter time=8m 40s  (epochs total=8m 40s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  17 | TOTAL SAMPLES= 34,000 | TRAIN= 27,200 | TEST=  6,800
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      1.000004      1.013192    -0.0000   -0.0000        6m 49s
+    Early stopping at epoch 660.
+
+  ITER  17 DONE | n= 34,000 | train R2=0.7469 | test R2=0.6964 | iter time=9m 1s  (epochs total=9m 1s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  18 | TOTAL SAMPLES= 36,000 | TRAIN= 28,800 | TEST=  7,200
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      1.000001      1.014562    -0.0000   -0.0001         7m 0s
+    Early stopping at epoch 652.
+
+  ITER  18 DONE | n= 36,000 | train R2=0.7422 | test R2=0.7050 | iter time=9m 12s  (epochs total=9m 11s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  19 | TOTAL SAMPLES= 38,000 | TRAIN= 30,400 | TEST=  7,600
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      1.000001      0.998890     0.0000   -0.0000        7m 37s
+    Early stopping at epoch 628.
+
+  ITER  19 DONE | n= 38,000 | train R2=0.7433 | test R2=0.6991 | iter time=9m 34s  (epochs total=9m 34s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  20 | TOTAL SAMPLES= 40,000 | TRAIN= 32,000 | TEST=  8,000
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      1.000001      1.000606     0.0000   -0.0000        7m 53s
+    Early stopping at epoch 650.
+
+  ITER  20 DONE | n= 40,000 | train R2=0.7376 | test R2=0.7035 | iter time=10m 15s  (epochs total=10m 15s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  21 | TOTAL SAMPLES= 42,000 | TRAIN= 33,600 | TEST=  8,400
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      1.000001      0.983187     0.0000   -0.0001        9m 24s
+    Early stopping at epoch 636.
+
+  ITER  21 DONE | n= 42,000 | train R2=0.7358 | test R2=0.7007 | iter time=11m 56s  (epochs total=11m 55s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  22 | TOTAL SAMPLES= 44,000 | TRAIN= 35,200 | TEST=  8,800
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      1.000001      1.009970     0.0000   -0.0000        9m 49s
+    Early stopping at epoch 636.
+
+  ITER  22 DONE | n= 44,000 | train R2=0.7310 | test R2=0.7052 | iter time=12m 29s  (epochs total=12m 29s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  23 | TOTAL SAMPLES= 46,000 | TRAIN= 36,800 | TEST=  9,200
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      1.000001      0.998621    -0.0000   -0.0001        10m 4s
+    Early stopping at epoch 662.
+
+  ITER  23 DONE | n= 46,000 | train R2=0.7326 | test R2=0.6946 | iter time=13m 19s  (epochs total=13m 19s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  24 | TOTAL SAMPLES= 48,000 | TRAIN= 38,400 | TEST=  9,600
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      1.000001      0.989970     0.0000   -0.0000       10m 33s
+    Early stopping at epoch 611.
+
+  ITER  24 DONE | n= 48,000 | train R2=0.7269 | test R2=0.7000 | iter time=12m 54s  (epochs total=12m 54s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  25 | TOTAL SAMPLES= 50,000 | TRAIN= 40,000 | TEST= 10,000
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      1.000001      0.996508     0.0000   -0.0000       11m 21s
+    Early stopping at epoch 612.
+
+  ITER  25 DONE | n= 50,000 | train R2=0.7247 | test R2=0.7006 | iter time=14m 19s  (epochs total=14m 19s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  26 | TOTAL SAMPLES= 52,000 | TRAIN= 41,600 | TEST= 10,400
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
+       500      1.000001      1.001295     0.0000   -0.0000       13m 54s
+    Early stopping at epoch 598.
+
+  ITER  26 DONE | n= 52,000 | train R2=0.7234 | test R2=0.6975 | iter time=16m 36s  (epochs total=16m 35s)
+
+  --- No improvement (best so far: test R2=0.7163)
+
+  ITERATION  27 | TOTAL SAMPLES= 54,000 | TRAIN= 43,200 | TEST= 10,800
+
+     Epoch     Train MSE      Test MSE   Train R2   Test R2          Time
+    ------  ------------  ------------  ---------  --------  ------------
